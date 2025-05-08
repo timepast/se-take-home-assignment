@@ -13,7 +13,6 @@ class Controller {
         this.queue.forEach((bot) => {
           if (bot.status === BOT_STATUS.IDLE) bot.processNextOrder();
         });
-        return;
       }
     });
   }
