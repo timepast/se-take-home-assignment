@@ -83,16 +83,26 @@ This will launch the app at [http://localhost:5173](http://localhost:5173) by de
 
 ---
 
-#### 🧪 Run Unit Tests
+#### 📊 Unit Test Coverage
 
-This project uses [Vitest](https://vitest.dev/) for unit testing.
+This project includes a set of unit tests located in:
 
-To run all tests:
+```
+src/test/controller.test.ts
+```
+
+The tests cover the main user stories:
+
+- Bot creation and removal
+- Order prioritization (VIP before normal)
+- Bot state transitions (IDLE ↔ RUN)
+- Order processing and completion
+- Recovery logic when a bot is destroyed
+
+To run the tests:
 
 ```bash
 npm run test
-# or
-yarn test
 ```
 
 ---
