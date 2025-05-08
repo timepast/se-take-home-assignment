@@ -33,6 +33,8 @@ yarn dev
 
 This will launch the app at [http://localhost:5173](http://localhost:5173) by default.
 
+![App demo](./public/demo.png)
+
 ---
 
 #### 📊 Unit Test Coverage
