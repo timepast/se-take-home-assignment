@@ -33,7 +33,9 @@ yarn dev
 
 This will launch the app at [http://localhost:5173](http://localhost:5173) by default.
 
-![App demo](./public/demo.png)
+<p align="center">
+  <img src="./public/demo.png" alt="FeedMe Screenshot" width="400" />
+</p>
 
 ---
 
