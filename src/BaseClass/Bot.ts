@@ -41,7 +41,7 @@ const getUid = (() => {
 })();
 
 // Processing time per order (10 seconds)
-const WORKING_TIME = 3000;
+const WORKING_TIME = 10000;
 
 /**
  * Bot instance that can pick and process one order at a time.
