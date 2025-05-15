@@ -1,7 +1,7 @@
 import { describe, beforeEach, expect, test, vi } from "vitest";
 import Controller from "../Controller";
 import OrderManager, { ORDER_STATUS } from "../BaseClass/Order";
-import { BOT_STATUS } from "../BaseClass/Bot";
+import { BOT_STATUS, BOT_TYPE } from "../BaseClass/Bot";
 
 let controller: Controller;
 let orderManager: OrderManager;
@@ -47,11 +47,54 @@ describe("Controller & Bot & Order integration tests", () => {
     expect(orderList[0].uid).toBe(vipOrder.uid);
   });
 
-  test("bot should complete order after 10s", () => {
+  test("vip bot should complete order after 5s", () => {
     const vipOrder = orderManager.createVipOrder();
-    controller.increase();
+    const vipBot = controller.increase({ type: BOT_TYPE.VIP });
 
-    vi.advanceTimersByTime(10000);
+    expect(vipBot.currentOrder?.counter).toBe(5);
+
+    vi.advanceTimersByTime(1000);
+    expect(vipBot.currentOrder?.counter).toBe(4);
+    vi.advanceTimersByTime(1000);
+    expect(vipBot.currentOrder?.counter).toBe(3);
+    vi.advanceTimersByTime(1000);
+    expect(vipBot.currentOrder?.counter).toBe(2);
+    vi.advanceTimersByTime(1000);
+    expect(vipBot.currentOrder?.counter).toBe(1);
+
+    vi.advanceTimersByTime(1000);
+    expect(vipBot.currentOrder?.counter).toBe(undefined);
+
+    const list = orderManager.getOrderList();
+    const completed = list.find((o) => o.uid === vipOrder.uid);
+    expect(completed?.status).toBe(ORDER_STATUS.COMPLETE);
+  });
+
+  test("normal bot should complete order after 10s", () => {
+    const vipOrder = orderManager.createVipOrder();
+    const bot = controller.increase();
+    expect(bot.currentOrder?.counter).toBe(10);
+
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(9);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(8);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(7);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(6);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(5);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(4);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(3);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(2);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(1);
+    vi.advanceTimersByTime(1000);
+    expect(bot.currentOrder?.counter).toBe(undefined);
 
     const list = orderManager.getOrderList();
     const completed = list.find((o) => o.uid === vipOrder.uid);

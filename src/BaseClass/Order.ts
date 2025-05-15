@@ -38,16 +38,18 @@ export interface IOrder {
   status: OrderStatus;
   uid: number;
   orderType: OrderType;
+  counter: number;
 }
 
 interface IProps {
   type: OrderType;
 }
 
-export type EventType = "ORDER_ADDED" | "ORDER_UPDATED";
+export type EventType = "ORDER_ADDED" | "ORDER_UPDATED" | "ORDER_COUNTER";
 export const EVENT_TYPE = {
   ORDER_ADDED: "ORDER_ADDED",
   ORDER_UPDATED: "ORDER_UPDATED",
+  ORDER_COUNTER: "ORDER_COUNTER",
 } as const;
 
 export interface OrderEvent {
@@ -63,9 +65,11 @@ class Order implements IOrder {
   status: OrderStatus = ORDER_STATUS.PENDING;
   uid = getUid();
   orderType: OrderType;
+  counter: number;
 
   constructor(props: IProps) {
     this.orderType = props.type;
+    this.counter = 0;
   }
 }
 

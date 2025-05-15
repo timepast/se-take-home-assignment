@@ -1,4 +1,4 @@
-import Bot, { BOT_STATUS } from "../BaseClass/Bot";
+import Bot, { BOT_STATUS, BOT_TYPE, type BotType } from "../BaseClass/Bot";
 import OrderManager, { EVENT_TYPE, type OrderEvent } from "../BaseClass/Order";
 
 class Controller {
@@ -21,9 +21,13 @@ class Controller {
     return this.queue.some((bot) => bot.status === BOT_STATUS.IDLE);
   }
 
-  increase() {
-    const bot = new Bot({ orderManager: this.orderManager });
+  increase(params?: { type: BotType }) {
+    const bot = new Bot({
+      orderManager: this.orderManager,
+      type: params?.type || BOT_TYPE.NORMAL,
+    });
     this.queue.push(bot);
+    return bot;
   }
 
   decrease() {

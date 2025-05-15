@@ -6,7 +6,7 @@ import OrderManager, {
   EVENT_TYPE,
   type OrderEvent,
 } from "./BaseClass/Order";
-import { type IBot } from "./BaseClass/Bot";
+import { BOT_TYPE, type IBot } from "./BaseClass/Bot";
 
 import "./App.css";
 
@@ -30,6 +30,10 @@ function App() {
       if (data.type === EVENT_TYPE.ORDER_UPDATED) {
         setOrderList(orderManagerRef.current?.getOrderList() || []);
       }
+
+      if (data.type === EVENT_TYPE.ORDER_COUNTER) {
+        setBotList(controllerRef.current?.getBots() || []);
+      }
     });
   }, []);
 
@@ -39,11 +43,19 @@ function App() {
       <div className="card">
         <button
           onClick={() => {
-            controllerRef.current?.increase();
+            controllerRef.current?.increase({ type: BOT_TYPE.NORMAL });
             setBotList(controllerRef.current?.getBots() || []);
           }}
         >
           + Bot
+        </button>
+        <button
+          onClick={() => {
+            controllerRef.current?.increase({ type: BOT_TYPE.VIP });
+            setBotList(controllerRef.current?.getBots() || []);
+          }}
+        >
+          + VIP Bot
         </button>
         <button
           onClick={() => {
@@ -78,7 +90,7 @@ function App() {
           return (
             <div key={bot.uid}>
               <div>
-                {bot.uid}({bot.status})
+                {bot.uid}({bot.type} {bot.status} {bot.currentOrder?.counter})
               </div>
             </div>
           );

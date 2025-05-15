@@ -17,7 +17,7 @@
  *   - If it was processing an order, that order is returned to the front of the pending queue (`queue_cache`).
  */
 
-import OrderManager, { type IOrder } from "./Order";
+import OrderManager, { EVENT_TYPE, type IOrder } from "./Order";
 
 export type BotStatus = "RUN" | "IDLE";
 export const BOT_STATUS = {
@@ -25,13 +25,21 @@ export const BOT_STATUS = {
   IDLE: "IDLE",
 } as const;
 
+export type BotType = "NORMAL" | "VIP";
+
+export const BOT_TYPE = {
+  NORMAL: "NORMAL",
+  VIP: "VIP",
+} as const;
+
 export interface IBot {
   uid: number;
   status: BotStatus;
+  type: BotType;
   currentOrder: IOrder | null;
   updateOrder: (order: IOrder) => void;
   completeOrder: () => void;
-  taskHandle: ReturnType<typeof setTimeout>;
+  counterHandle: ReturnType<typeof setInterval>;
   isDestroyed?: boolean;
 }
 
@@ -40,21 +48,20 @@ const getUid = (() => {
   return () => uid++;
 })();
 
-// Processing time per order (10 seconds)
-const WORKING_TIME = 10000;
-
 /**
  * Bot instance that can pick and process one order at a time.
  */
 class Bot implements IBot {
   status: BotStatus = BOT_STATUS.IDLE;
   uid = getUid();
+  type: BotType = BOT_TYPE.NORMAL;
   currentOrder: IOrder | null = null;
   orderManager: OrderManager;
-  taskHandle!: ReturnType<typeof setTimeout>;
+  counterHandle!: ReturnType<typeof setInterval>;
   isDestroyed?: boolean;
 
-  constructor(props: { orderManager: OrderManager }) {
+  constructor(props: { orderManager: OrderManager; type: BotType }) {
+    this.type = props.type;
     this.orderManager = props.orderManager;
     this.processNextOrder();
   }
@@ -91,16 +98,27 @@ class Bot implements IBot {
     }
 
     this.updateOrder(nextOrder);
-    // complete the order after WORKING_TIME
-    this.taskHandle = setTimeout(() => {
-      this.completeOrder();
-      this.processNextOrder();
-    }, WORKING_TIME);
+
+    // order counter update
+    nextOrder.counter = this.type === BOT_TYPE.VIP ? 5 : 10;
+    this.orderManager.publish({ type: EVENT_TYPE.ORDER_COUNTER });
+
+    this.counterHandle = setInterval(() => {
+      nextOrder.counter--;
+      this.orderManager.publish({ type: EVENT_TYPE.ORDER_COUNTER });
+
+      // complete the order after WORKING_TIME
+      if (nextOrder.counter === 0) {
+        clearInterval(this.counterHandle);
+        this.completeOrder();
+        this.processNextOrder();
+      }
+    }, 1000);
   }
 
   destroy() {
-    if (this.taskHandle) {
-      clearTimeout(this.taskHandle);
+    if (this.counterHandle) {
+      clearTimeout(this.counterHandle);
     }
     if (!this.currentOrder) return;
     this.orderManager.updateCache(this.currentOrder);
